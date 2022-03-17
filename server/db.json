@@ -1,0 +1,27 @@
+{
+  "todos": [
+    {
+      "id": 1,
+      "text": "TypeScript lernen",
+      "done": true
+    },
+    {
+      "id": 2,
+      "text": "WEBT Projekt umsetzen",
+      "done": false
+    },
+    {
+      "text": "dfd",
+      "done": false,
+      "id": 3
+    },
+    {
+      "text": "LEON LEEEEEEEB",
+      "done": false,
+      "id": 4
+    }
+  ],
+  "profile": {
+    "name": "webt"
+  }
+}
