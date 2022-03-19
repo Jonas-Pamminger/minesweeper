@@ -223,6 +223,7 @@ function init() {
     });
 }
 document.addEventListener('DOMContentLoaded', (event) => {
+    alert('Loaded');
     init();
 });
 //# sourceMappingURL=minesweeper.js.map

@@ -239,5 +239,6 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
+    alert('Loaded')
     init();
 });
