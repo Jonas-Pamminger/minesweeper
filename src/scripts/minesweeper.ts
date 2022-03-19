@@ -68,7 +68,6 @@ function generateField(config: GameConfig): Field[][] {
 }
 
 function handleFieldHit(fields: Field[][], hitPosition: Position, flagging: boolean, config: GameConfig): GameState {
-    let no = 0;
     function checkForVictory(): boolean {
         let noOfMines = 0;
         let noOfFlaggedMines = 0;
@@ -91,18 +90,6 @@ function handleFieldHit(fields: Field[][], hitPosition: Position, flagging: bool
             && (noOfMines > 0)
             && (noOfMines === noOfFlaggedMines);
     }
-    function getNumOfMinesAround(colPos: number, rowPos: number): number{
-        let mines = 0;
-        for(let col: number = colPos - 1; col <= colPos + 1; col++){
-            for(let row: number = rowPos - 1; row <= rowPos + 1; row++){
-                if((col !== colPos && row !== rowPos ) || col === - 1 || col === config.fieldSize || row === - 1 || row === config.fieldSize ){}
-                else{
-                    if(fields[col][row] instanceof Mine) mines++;
-                }
-            }
-        }
-        return 0;
-    }
     let colPos: number = 0;
     for (let row of fields) {
         let rowPos: number = 0;
@@ -122,6 +109,19 @@ function handleFieldHit(fields: Field[][], hitPosition: Position, flagging: bool
         colPos++;
     }
     return GameState.Continue;
+}
+function getNumOfMinesAround(fields: Field[][], colPos: number, rowPos: number): number{
+    let mines : number = 0;
+    if(fields[colPos][rowPos]instanceof Mine) return 9;
+    for(let col: number = colPos - 1; col <= colPos + 1; col++){
+        for(let row: number = rowPos - 1; row <= rowPos + 1; row++){
+            if((col === colPos && row === rowPos ) || col === - 1 || col === config.fieldSize || row === - 1 || row === config.fieldSize ){}
+            else{
+                if(fields[col][row] instanceof Mine) mines++;
+            }
+        }
+    }
+    return mines;
 }
 
 function updateGameStateDisplay(state: GameState): void {
@@ -193,8 +193,16 @@ function init() {
     const canvas: any = document.getElementById("playground");
     const context: CanvasRenderingContext2D = canvas.getContext("2d");
     const renderer = new Renderer(context, config, 400, playingField);
-    renderer.render();
+    let minesAround : number[][] = new Array<Array<number>>(config.fieldSize);
 
+    for (let col : number = 0; col < playingField.length; col++){
+        minesAround[col] = new Array(playingField[0].length)
+        for(let row : number = 0; row < playingField[0].length; row++){
+            minesAround[col][row] = getNumOfMinesAround(playingField, col, row);
+        }
+    }
+    renderer.MinesAround = minesAround;
+    renderer.render();
     canvas.onmousedown = (event: MouseEvent) => {
         if (mineHitFlag) {
             return;
@@ -220,9 +228,5 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
-    var canvas = <HTMLCanvasElement>document.getElementById("canvas");
-    var ctx = canvas.getContext("2d");
-    ctx.font = "30px Arial";
-    ctx.fillText("Hello World", 10, 50);
     init();
 });

@@ -2,10 +2,12 @@ import {GameConfig} from "./minesweeper.js";
 import {Field, FieldState, UnknownFieldState} from "./field.js";
 
 export class Renderer {
+    public MinesAround: number[][];
     constructor(private readonly ctx: CanvasRenderingContext2D,
                 private readonly gameConfig: GameConfig,
                 private readonly fieldPixelSize: number,
-                private readonly fields: Field[][]) {
+                private readonly fields: Field[][],
+    ) {
     }
 
     public render(): void {
@@ -22,15 +24,19 @@ export class Renderer {
             const rightLowerY = leftUpperY + singleFieldPixel;
             return [new Position(leftUpperX, leftUpperY), new Position(rightLowerX, rightLowerY)];
         };
-
+        let col: number = 0;
+        let row: number = 0;
         for (let fRow of this.fields) {
+            row = 0;
             for (let field of fRow) {
                 const [leftUpper, rightLower] = translateFieldPos(field);
                 const fRenderer = new FieldRenderer(c => {
-                    this.drawRect(leftUpper, rightLower, c);
+                    this.drawRect(leftUpper, rightLower, c, col, row);
                 });
                 field.renderOnField(fRenderer, new Hitbox(leftUpper, rightLower));
+                row++;
             }
+            col++;
         }
     }
 
@@ -60,13 +66,22 @@ export class Renderer {
         this.ctx.stroke();
     }
 
-    private drawRect(leftUpper: Position, rightLower: Position, color: string): void {
+    private drawRect(leftUpper: Position, rightLower: Position, color: string, col: number, row: number): void {
         this.ctx.beginPath();
         this.ctx.fillStyle = color;
         this.ctx.rect(leftUpper.x, leftUpper.y,
             leftUpper.horizontalDistanceTo(rightLower),
             leftUpper.verticalDistanceTo(rightLower));
         this.ctx.fill();
+        if(color === 'white')
+        {
+            let canvas = <HTMLCanvasElement>document.getElementById("playground");
+            let context = canvas.getContext("2d");
+            context.fillStyle = 'black'
+            let mines: number = (this.MinesAround[col][row]);
+            let minesStr : string = mines.toString();
+            context.fillText(minesStr ,leftUpper.x + leftUpper.horizontalDistanceTo(rightLower) / 2, leftUpper.y + leftUpper.verticalDistanceTo(rightLower) / 2);
+        }
     }
 
 }

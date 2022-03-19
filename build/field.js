@@ -27,6 +27,10 @@ export class Field {
             }
             else {
                 this.isUnveiled = true;
+                var canvas = document.getElementById("playground");
+                var ctx = canvas.getContext("2d");
+                ctx.font = "30px Arial";
+                ctx.fillText("5", hit.x, hit.y);
             }
             return true;
         }

@@ -19,14 +19,19 @@ export class Renderer {
             const rightLowerY = leftUpperY + singleFieldPixel;
             return [new Position(leftUpperX, leftUpperY), new Position(rightLowerX, rightLowerY)];
         };
+        let col = 0;
+        let row = 0;
         for (let fRow of this.fields) {
+            row = 0;
             for (let field of fRow) {
                 const [leftUpper, rightLower] = translateFieldPos(field);
                 const fRenderer = new FieldRenderer(c => {
-                    this.drawRect(leftUpper, rightLower, c);
+                    this.drawRect(leftUpper, rightLower, c, col, row);
                 });
                 field.renderOnField(fRenderer, new Hitbox(leftUpper, rightLower));
+                row++;
             }
+            col++;
         }
     }
     drawGrid() {
@@ -53,11 +58,19 @@ export class Renderer {
         this.ctx.lineTo(endPos.x, endPos.y);
         this.ctx.stroke();
     }
-    drawRect(leftUpper, rightLower, color) {
+    drawRect(leftUpper, rightLower, color, col, row) {
         this.ctx.beginPath();
         this.ctx.fillStyle = color;
         this.ctx.rect(leftUpper.x, leftUpper.y, leftUpper.horizontalDistanceTo(rightLower), leftUpper.verticalDistanceTo(rightLower));
         this.ctx.fill();
+        if (color === 'white') {
+            let canvas = document.getElementById("playground");
+            let context = canvas.getContext("2d");
+            context.fillStyle = 'black';
+            let mines = (this.MinesAround[col][row]);
+            let minesStr = mines.toString();
+            context.fillText(minesStr, leftUpper.x + leftUpper.horizontalDistanceTo(rightLower) / 2, leftUpper.y + leftUpper.verticalDistanceTo(rightLower) / 2);
+        }
     }
 }
 export class FieldRenderer {

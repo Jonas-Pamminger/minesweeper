@@ -37,6 +37,10 @@ export class Field {
                 this.isFlagged = !this.isFlagged;
             } else {
                 this.isUnveiled = true;
+                var canvas = <HTMLCanvasElement>document.getElementById("playground");
+                var ctx = canvas.getContext("2d");
+                ctx.font = "30px Arial";
+                ctx.fillText("5", hit.x, hit.y);
             }
             return true;
         }

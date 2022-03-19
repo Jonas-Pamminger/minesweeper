@@ -56,7 +56,7 @@ function generateField(config) {
     }
     return field;
 }
-function handleFieldHit(fields, hitPosition, flagging) {
+function handleFieldHit(fields, hitPosition, flagging, config) {
     function checkForVictory() {
         let noOfMines = 0;
         let noOfFlaggedMines = 0;
@@ -79,9 +79,12 @@ function handleFieldHit(fields, hitPosition, flagging) {
             && (noOfMines > 0)
             && (noOfMines === noOfFlaggedMines);
     }
+    let colPos = 0;
     for (let row of fields) {
+        let rowPos = 0;
         for (let field of row) {
             if (field.checkForHit(hitPosition, flagging)) {
+                // if left click on mine
                 if (!flagging && field instanceof Mine) {
                     return GameState.GameOver;
                 }
@@ -90,9 +93,26 @@ function handleFieldHit(fields, hitPosition, flagging) {
                 }
                 return GameState.Continue;
             }
+            rowPos++;
         }
+        colPos++;
     }
     return GameState.Continue;
+}
+function getNumOfMinesAround(fields, colPos, rowPos) {
+    let mines = 0;
+    if (fields[colPos][rowPos] instanceof Mine)
+        return 9;
+    for (let col = colPos - 1; col <= colPos + 1; col++) {
+        for (let row = rowPos - 1; row <= rowPos + 1; row++) {
+            if ((col === colPos && row === rowPos) || col === -1 || col === config.fieldSize || row === -1 || row === config.fieldSize) { }
+            else {
+                if (fields[col][row] instanceof Mine)
+                    mines++;
+            }
+        }
+    }
+    return mines;
 }
 function updateGameStateDisplay(state) {
     function hasClass(e, c) {
@@ -156,6 +176,14 @@ function init() {
     const canvas = document.getElementById("playground");
     const context = canvas.getContext("2d");
     const renderer = new Renderer(context, config, 400, playingField);
+    let minesAround = new Array(config.fieldSize);
+    for (let col = 0; col < playingField.length; col++) {
+        minesAround[col] = new Array(playingField[0].length);
+        for (let row = 0; row < playingField[0].length; row++) {
+            minesAround[col][row] = getNumOfMinesAround(playingField, col, row);
+        }
+    }
+    renderer.MinesAround = minesAround;
     renderer.render();
     canvas.onmousedown = (event) => {
         if (mineHitFlag) {
@@ -170,7 +198,7 @@ function init() {
         const canvasY = event.clientY - rect.top;
         const hitPosition = new Position(canvasX, canvasY);
         const flagRequest = event.button === 2;
-        const gameState = handleFieldHit(playingField, hitPosition, flagRequest);
+        const gameState = handleFieldHit(playingField, hitPosition, flagRequest, config);
         updateGameStateDisplay(gameState);
         if (gameState === GameState.GameOver) {
             mineHitFlag = true;
