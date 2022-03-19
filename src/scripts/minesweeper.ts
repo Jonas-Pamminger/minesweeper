@@ -184,47 +184,58 @@ let playingField: Field[][] = null;
 let mineHitFlag = false;
 
 function init() {
-    config = new GameConfig(5, 4);
-    playingField = generateField(config);
-    mineHitFlag = false;
+    document.getElementById('submit').addEventListener('click', () => {
+        const fieldSize = <HTMLInputElement>document.getElementById('playGroundSize');
+        const numOfMines = <HTMLInputElement>document.getElementById('numberOfMines');
+        if(isNaN(+fieldSize.value) || isNaN(+numOfMines.value)){
+            alert('Input only can be a number')
+        } else {
+            config = new GameConfig(Number(fieldSize.value), Number(numOfMines.value));
+            playingField = generateField(config);
+            mineHitFlag = false;
+            if(config.isValid()) {
+                updateGameStateDisplay(GameState.Continue);
 
-    updateGameStateDisplay(GameState.Continue);
+                const canvas: any = document.getElementById("playground");
+                const context: CanvasRenderingContext2D = canvas.getContext("2d");
+                const renderer = new Renderer(context, config, 400, playingField);
+                let minesAround: number[][] = new Array<Array<number>>(config.fieldSize);
 
-    const canvas: any = document.getElementById("playground");
-    const context: CanvasRenderingContext2D = canvas.getContext("2d");
-    const renderer = new Renderer(context, config, 400, playingField);
-    let minesAround : number[][] = new Array<Array<number>>(config.fieldSize);
-
-    for (let col : number = 0; col < playingField.length; col++){
-        minesAround[col] = new Array(playingField[0].length)
-        for(let row : number = 0; row < playingField[0].length; row++){
-            minesAround[col][row] = getNumOfMinesAround(playingField, col, row);
+                for (let col: number = 0; col < playingField.length; col++) {
+                    minesAround[col] = new Array(playingField[0].length)
+                    for (let row: number = 0; row < playingField[0].length; row++) {
+                        minesAround[col][row] = getNumOfMinesAround(playingField, col, row);
+                    }
+                }
+                renderer.MinesAround = minesAround;
+                renderer.render();
+                canvas.onmousedown = (event: MouseEvent) => {
+                    if (mineHitFlag) {
+                        return;
+                    }
+                    if (event.button !== 0 && event.button !== 2) {
+                        console.log('Unknown mouse button clicked');
+                        return;
+                    }
+                    const rect = canvas.getBoundingClientRect();
+                    const canvasX = event.clientX - rect.left;
+                    const canvasY = event.clientY - rect.top;
+                    const hitPosition = new Position(canvasX, canvasY);
+                    const flagRequest = event.button === 2;
+                    const gameState = handleFieldHit(playingField, hitPosition, flagRequest, config);
+                    updateGameStateDisplay(gameState);
+                    if (gameState === GameState.GameOver) {
+                        mineHitFlag = true;
+                        revealAllMines(playingField);
+                        setTimeout(() => init(), 5000);
+                    }
+                    renderer.render();
+                };
+            }else{
+                alert('Input wrong! Please try again')
+            }
         }
-    }
-    renderer.MinesAround = minesAround;
-    renderer.render();
-    canvas.onmousedown = (event: MouseEvent) => {
-        if (mineHitFlag) {
-            return;
-        }
-        if (event.button !== 0 && event.button !== 2) {
-            console.log('Unknown mouse button clicked');
-            return;
-        }
-        const rect = canvas.getBoundingClientRect();
-        const canvasX = event.clientX - rect.left;
-        const canvasY = event.clientY - rect.top;
-        const hitPosition = new Position(canvasX, canvasY);
-        const flagRequest = event.button === 2;
-        const gameState = handleFieldHit(playingField, hitPosition, flagRequest, config);
-        updateGameStateDisplay(gameState);
-        if (gameState === GameState.GameOver) {
-            mineHitFlag = true;
-            revealAllMines(playingField);
-            setTimeout(() => init(), 5000);
-        }
-        renderer.render();
-    };
+    })
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {

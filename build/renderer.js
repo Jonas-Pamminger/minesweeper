@@ -69,7 +69,7 @@ export class Renderer {
             context.fillStyle = 'black';
             let mines = (this.MinesAround[col][row]);
             let minesStr = mines.toString();
-            context.fillText(minesStr, leftUpper.x + leftUpper.horizontalDistanceTo(rightLower) / 2, leftUpper.y + leftUpper.verticalDistanceTo(rightLower) / 2);
+            context.fillText(minesStr, leftUpper.x + leftUpper.horizontalDistanceTo(rightLower) / 2 - 6, leftUpper.y + leftUpper.verticalDistanceTo(rightLower) / 2 + 6);
         }
     }
 }
