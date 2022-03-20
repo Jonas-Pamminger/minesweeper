@@ -195,7 +195,6 @@ function init() {
             mineHitFlag = false;
             if(config.isValid()) {
                 updateGameStateDisplay(GameState.Continue);
-
                 const canvas: any = document.getElementById("playground");
                 const context: CanvasRenderingContext2D = canvas.getContext("2d");
                 const renderer = new Renderer(context, config, 400, playingField);
@@ -239,6 +238,5 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
-    alert('Loaded')
     init();
 });
