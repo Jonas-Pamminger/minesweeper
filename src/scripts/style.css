@@ -1,0 +1,13 @@
+#input{
+    margin: auto;
+    width: 400px
+}
+.hidden{
+    display: none;
+}
+#playground{
+    margin-bottom: 2em;
+}
+#gameState{
+    margin-bottom: 2em;
+}

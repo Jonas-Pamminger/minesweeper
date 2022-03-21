@@ -182,6 +182,7 @@ function init() {
             if (config.isValid()) {
                 updateGameStateDisplay(GameState.Continue);
                 const canvas = document.getElementById("playground");
+                canvas.classList.remove('hidden');
                 const context = canvas.getContext("2d");
                 const renderer = new Renderer(context, config, 400, playingField);
                 let minesAround = new Array(config.fieldSize);
